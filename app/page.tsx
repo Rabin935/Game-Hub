@@ -10,6 +10,13 @@ const games: HubGame[] = [
     description: "Match every pair and clear the board as fast as you can.",
     ctaLabel: "Play",
   },
+  {
+    title: "Snake Game",
+    href: "/games/snake",
+    image: "/games/snake-game.svg",
+    description: "Guide the snake, grab food, and beat your high score.",
+    ctaLabel: "Play",
+  },
 ];
 
 export default function Home() {
@@ -31,7 +38,7 @@ export default function Home() {
         </div>
 
         <section className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {games.map((game) => (
+          {games.map((game, index) => (
             <Link
               key={game.href}
               href={game.href}
@@ -42,7 +49,7 @@ export default function Home() {
                   src={game.image}
                   alt={game.title}
                   fill
-                  priority
+                  priority={index < 2}
                   className="object-cover transition duration-500 group-hover:scale-105"
                 />
               </div>
