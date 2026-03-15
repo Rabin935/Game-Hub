@@ -109,10 +109,7 @@ export function MemoryBoard() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-3">
           <div className="rounded-2xl bg-slate-100 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Turns
-            </p>
-            <p className="mt-1 text-2xl font-black text-slate-900">{turns}</p>
+            <p className="text-lg font-black text-slate-900">Moves: {turns}</p>
           </div>
           <div className="rounded-2xl bg-slate-100 px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -136,7 +133,7 @@ export function MemoryBoard() {
       <div className="mt-6 min-h-14">
         {hasWon ? (
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-            You matched every card in {turns} turns. Nice work.
+            You matched every card in {turns} moves. Nice work.
           </div>
         ) : (
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
