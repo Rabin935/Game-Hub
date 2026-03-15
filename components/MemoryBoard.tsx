@@ -6,12 +6,12 @@ import { shuffleArray } from "@/lib/shuffle";
 import type { MemoryCardData } from "@/types/game";
 
 const baseCards = [
-  { pairId: 1, symbol: "A", label: "Card A" },
-  { pairId: 2, symbol: "B", label: "Card B" },
-  { pairId: 3, symbol: "C", label: "Card C" },
-  { pairId: 4, symbol: "D", label: "Card D" },
-  { pairId: 5, symbol: "E", label: "Card E" },
-  { pairId: 6, symbol: "F", label: "Card F" },
+  { pairId: 1, image: "/file.svg", label: "File card" },
+  { pairId: 2, image: "/globe.svg", label: "Globe card" },
+  { pairId: 3, image: "/window.svg", label: "Window card" },
+  { pairId: 4, image: "/next.svg", label: "Next.js card" },
+  { pairId: 5, image: "/vercel.svg", label: "Vercel card" },
+  { pairId: 6, image: "/games/memory-flip.svg", label: "Memory card" },
 ];
 
 function createCards(): MemoryCardData[] {
@@ -19,14 +19,14 @@ function createCards(): MemoryCardData[] {
     {
       id: card.pairId * 2 - 1,
       pairId: card.pairId,
-      symbol: card.symbol,
+      image: card.image,
       label: card.label,
       matched: false,
     },
     {
       id: card.pairId * 2,
       pairId: card.pairId,
-      symbol: card.symbol,
+      image: card.image,
       label: card.label,
       matched: false,
     },
@@ -142,18 +142,17 @@ export function MemoryBoard() {
         )}
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-3 justify-items-center gap-3 sm:grid-cols-4">
         {cards.map((card) => {
-          const isFlipped =
+          const flipped =
             card.matched || card.id === firstChoice || card.id === secondChoice;
 
           return (
             <MemoryCard
               key={card.id}
               card={card}
-              isFlipped={isFlipped}
-              isDisabled={isResolving || card.matched}
-              onClick={handleSelect}
+              flipped={flipped}
+              handleClick={() => handleSelect(card.id)}
             />
           );
         })}

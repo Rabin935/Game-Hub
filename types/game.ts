@@ -9,7 +9,7 @@ export type HubGame = {
 export type MemoryCardData = {
   id: number;
   pairId: number;
-  symbol: string;
+  image: string;
   label: string;
   matched: boolean;
 };
