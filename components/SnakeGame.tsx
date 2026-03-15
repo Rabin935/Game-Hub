@@ -14,8 +14,14 @@ type GridPosition = {
 
 const BOARD_SIZE = 20;
 const TOTAL_GRID_CELLS = BOARD_SIZE * BOARD_SIZE;
-const GAME_SPEED = 200;
+const DEFAULT_GAME_SPEED = 200;
 const INITIAL_DIRECTION: GridPosition = { x: 1, y: 0 };
+const LEVEL_CONFIGS = [
+  { fruitsRequired: 5, speed: 200 },
+  { fruitsRequired: 10, speed: 170 },
+  { fruitsRequired: 15, speed: 150 },
+  { fruitsRequired: 20, speed: 130 },
+];
 
 const modeContent: Record<
   SnakeGameMode,
@@ -73,12 +79,26 @@ function createRandomFruit(occupiedCells: GridPosition[]): GridPosition {
 
 export function SnakeGame({ mode }: SnakeGameProps) {
   const content = modeContent[mode];
+  const isLevelsMode = mode === "levels";
   const [snake, setSnake] = useState<GridPosition[]>(() => createInitialSnake());
   const [direction, setDirection] = useState<GridPosition>(INITIAL_DIRECTION);
   const [fruit, setFruit] = useState<GridPosition>({ x: 14, y: 10 });
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [hasWon, setHasWon] = useState(false);
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [fruitsEaten, setFruitsEaten] = useState(0);
+  const [fruitsRequired, setFruitsRequired] = useState(
+    LEVEL_CONFIGS[0].fruitsRequired
+  );
+  const [levelComplete, setLevelComplete] = useState(false);
+
+  const currentLevelConfig =
+    LEVEL_CONFIGS[currentLevel - 1] ?? LEVEL_CONFIGS[0];
+  const gameSpeed = isLevelsMode
+    ? currentLevelConfig.speed
+    : DEFAULT_GAME_SPEED;
+  const isFinalLevel = currentLevel === LEVEL_CONFIGS.length;
 
   const handleDirectionChange = useEffectEvent((nextDirection: GridPosition) => {
     setDirection((currentDirection) =>
@@ -89,7 +109,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
   });
 
   const moveSnake = useEffectEvent(() => {
-    if (gameOver || hasWon) {
+    if (gameOver || hasWon || levelComplete) {
       return;
     }
 
@@ -120,6 +140,24 @@ export function SnakeGame({ mode }: SnakeGameProps) {
       if (hasEatenFruit) {
         setScore((currentScore) => currentScore + 1);
 
+        if (isLevelsMode) {
+          const nextFruitsEaten = fruitsEaten + 1;
+          setFruitsEaten(nextFruitsEaten);
+
+          if (nextFruitsEaten >= fruitsRequired) {
+            if (isFinalLevel) {
+              setHasWon(true);
+            } else {
+              setLevelComplete(true);
+            }
+
+            return nextSnake;
+          }
+
+          setFruit(createRandomFruit(nextSnake));
+          return nextSnake;
+        }
+
         if (nextSnake.length === TOTAL_GRID_CELLS) {
           setHasWon(true);
           return nextSnake;
@@ -132,15 +170,38 @@ export function SnakeGame({ mode }: SnakeGameProps) {
     });
   });
 
-  function restartGame() {
+  function resetBoardState() {
     const initialSnake = createInitialSnake();
 
     setSnake(initialSnake);
     setDirection(INITIAL_DIRECTION);
     setFruit(createRandomFruit(initialSnake));
-    setScore(0);
     setGameOver(false);
     setHasWon(false);
+    setLevelComplete(false);
+  }
+
+  function restartGame() {
+    resetBoardState();
+    setScore(0);
+    setCurrentLevel(1);
+    setFruitsEaten(0);
+    setFruitsRequired(LEVEL_CONFIGS[0].fruitsRequired);
+  }
+
+  function handleNextLevel() {
+    if (!isLevelsMode || isFinalLevel) {
+      return;
+    }
+
+    const nextLevel = currentLevel + 1;
+
+    resetBoardState();
+    setCurrentLevel(nextLevel);
+    setFruitsEaten(0);
+    setFruitsRequired(
+      LEVEL_CONFIGS[nextLevel - 1]?.fruitsRequired ?? LEVEL_CONFIGS[0].fruitsRequired
+    );
   }
 
   useEffect(() => {
@@ -177,16 +238,16 @@ export function SnakeGame({ mode }: SnakeGameProps) {
   }, []);
 
   useEffect(() => {
-    if (gameOver || hasWon) {
+    if (gameOver || hasWon || levelComplete) {
       return;
     }
 
     const interval = window.setInterval(() => {
       moveSnake();
-    }, GAME_SPEED);
+    }, gameSpeed);
 
     return () => window.clearInterval(interval);
-  }, [gameOver, hasWon]);
+  }, [gameOver, hasWon, levelComplete, gameSpeed]);
 
   const snakeHead = snake[0];
   const gridCells = Array.from({ length: BOARD_SIZE * BOARD_SIZE }, (_, index) => {
@@ -236,9 +297,43 @@ export function SnakeGame({ mode }: SnakeGameProps) {
                 Status
               </p>
               <p className="mt-1 text-sm font-bold text-slate-900">
-                {hasWon ? "Won" : gameOver ? "Game Over" : "Running"}
+                {hasWon
+                  ? "Won"
+                  : levelComplete
+                    ? "Level Complete"
+                    : gameOver
+                      ? "Game Over"
+                      : "Running"}
               </p>
             </div>
+            {isLevelsMode ? (
+              <>
+                <div className="rounded-2xl bg-slate-100 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Level
+                  </p>
+                  <p className="mt-1 text-2xl font-black text-slate-900">
+                    {currentLevel}
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-slate-100 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Fruits
+                  </p>
+                  <p className="mt-1 text-2xl font-black text-slate-900">
+                    {fruitsEaten}/{fruitsRequired}
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-slate-100 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Speed
+                  </p>
+                  <p className="mt-1 text-2xl font-black text-slate-900">
+                    {gameSpeed}ms
+                  </p>
+                </div>
+              </>
+            ) : null}
           </div>
         </div>
 
@@ -286,11 +381,42 @@ export function SnakeGame({ mode }: SnakeGameProps) {
         </div>
 
         {hasWon ? (
-          <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700">
-            <p className="text-lg font-black">
-              {"\u{1F389} You filled the entire map!"}
+          isLevelsMode ? (
+            <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700">
+              <p className="text-lg font-black">All Levels Complete</p>
+              <p className="mt-2 text-sm leading-6">Final score: {score}</p>
+              <button
+                type="button"
+                onClick={restartGame}
+                className="mt-4 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Restart Levels
+              </button>
+            </div>
+          ) : (
+            <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700">
+              <p className="text-lg font-black">
+                {"\u{1F389} You filled the entire map!"}
+              </p>
+              <p className="mt-2 text-sm leading-6">Final score: {score}</p>
+            </div>
+          )
+        ) : null}
+
+        {levelComplete ? (
+          <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50 px-5 py-4 text-amber-800">
+            <p className="text-lg font-black">Level Complete</p>
+            <p className="mt-2 text-sm leading-6">
+              You reached the target of {fruitsRequired} fruits for Level{" "}
+              {currentLevel}.
             </p>
-            <p className="mt-2 text-sm leading-6">Final score: {score}</p>
+            <button
+              type="button"
+              onClick={handleNextLevel}
+              className="mt-4 inline-flex items-center justify-center rounded-full bg-amber-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
+            >
+              Next Level
+            </button>
           </div>
         ) : null}
 
