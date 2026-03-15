@@ -5,7 +5,7 @@ import { MemoryCard } from "@/components/MemoryCard";
 import { shuffleArray } from "@/lib/shuffle";
 import type { MemoryCardData } from "@/types/game";
 
-const baseCards = [
+const memoryImages = [
   { pairId: 1, image: "/file.svg", label: "File card" },
   { pairId: 2, image: "/globe.svg", label: "Globe card" },
   { pairId: 3, image: "/window.svg", label: "Window card" },
@@ -14,8 +14,8 @@ const baseCards = [
   { pairId: 6, image: "/games/memory-flip.svg", label: "Memory card" },
 ];
 
-function createCards(): MemoryCardData[] {
-  const deck = baseCards.flatMap((card) => [
+function loadCards(): MemoryCardData[] {
+  const duplicatedCards = memoryImages.flatMap((card) => [
     {
       id: card.pairId * 2 - 1,
       pairId: card.pairId,
@@ -32,11 +32,11 @@ function createCards(): MemoryCardData[] {
     },
   ]);
 
-  return shuffleArray(deck);
+  return shuffleArray(duplicatedCards);
 }
 
 export function MemoryBoard() {
-  const [cards, setCards] = useState<MemoryCardData[]>(() => createCards());
+  const [cards, setCards] = useState<MemoryCardData[]>(() => loadCards());
   const [firstChoice, setFirstChoice] = useState<number | null>(null);
   const [secondChoice, setSecondChoice] = useState<number | null>(null);
   const [turns, setTurns] = useState(0);
@@ -44,11 +44,11 @@ export function MemoryBoard() {
   const firstCard = cards.find((card) => card.id === firstChoice) ?? null;
   const secondCard = cards.find((card) => card.id === secondChoice) ?? null;
   const matchedPairs = cards.filter((card) => card.matched).length / 2;
-  const hasWon = matchedPairs === baseCards.length;
+  const hasWon = matchedPairs === memoryImages.length;
   const isResolving = secondChoice !== null;
 
   function resetBoard() {
-    setCards(createCards());
+    setCards(loadCards());
     setFirstChoice(null);
     setSecondChoice(null);
     setTurns(0);
@@ -96,7 +96,7 @@ export function MemoryBoard() {
       setFirstChoice(null);
       setSecondChoice(null);
       setTurns((currentTurns) => currentTurns + 1);
-    }, isMatch ? 450 : 900);
+    }, isMatch ? 300 : 1000);
 
     return () => window.clearTimeout(timeout);
   }, [firstCard, secondCard]);
@@ -116,7 +116,7 @@ export function MemoryBoard() {
               Matched
             </p>
             <p className="mt-1 text-2xl font-black text-slate-900">
-              {matchedPairs}/{baseCards.length}
+              {matchedPairs}/{memoryImages.length}
             </p>
           </div>
         </div>
@@ -142,7 +142,7 @@ export function MemoryBoard() {
         )}
       </div>
 
-      <div className="mt-6 grid grid-cols-3 justify-items-center gap-3 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-4 justify-items-center gap-2 sm:gap-4">
         {cards.map((card) => {
           const flipped =
             card.matched || card.id === firstChoice || card.id === secondChoice;
