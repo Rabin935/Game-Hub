@@ -13,6 +13,7 @@ type GridPosition = {
 };
 
 const BOARD_SIZE = 20;
+const TOTAL_GRID_CELLS = BOARD_SIZE * BOARD_SIZE;
 const GAME_SPEED = 200;
 const INITIAL_DIRECTION: GridPosition = { x: 1, y: 0 };
 
@@ -77,6 +78,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
   const [fruit, setFruit] = useState<GridPosition>({ x: 14, y: 10 });
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [hasWon, setHasWon] = useState(false);
 
   const handleDirectionChange = useEffectEvent((nextDirection: GridPosition) => {
     setDirection((currentDirection) =>
@@ -87,7 +89,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
   });
 
   const moveSnake = useEffectEvent(() => {
-    if (gameOver) {
+    if (gameOver || hasWon) {
       return;
     }
 
@@ -117,6 +119,12 @@ export function SnakeGame({ mode }: SnakeGameProps) {
 
       if (hasEatenFruit) {
         setScore((currentScore) => currentScore + 1);
+
+        if (nextSnake.length === TOTAL_GRID_CELLS) {
+          setHasWon(true);
+          return nextSnake;
+        }
+
         setFruit(createRandomFruit(nextSnake));
       }
 
@@ -132,6 +140,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
     setFruit(createRandomFruit(initialSnake));
     setScore(0);
     setGameOver(false);
+    setHasWon(false);
   }
 
   useEffect(() => {
@@ -168,7 +177,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
   }, []);
 
   useEffect(() => {
-    if (gameOver) {
+    if (gameOver || hasWon) {
       return;
     }
 
@@ -177,7 +186,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
     }, GAME_SPEED);
 
     return () => window.clearInterval(interval);
-  }, [gameOver]);
+  }, [gameOver, hasWon]);
 
   const snakeHead = snake[0];
   const gridCells = Array.from({ length: BOARD_SIZE * BOARD_SIZE }, (_, index) => {
@@ -227,7 +236,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
                 Status
               </p>
               <p className="mt-1 text-sm font-bold text-slate-900">
-                {gameOver ? "Game Over" : "Running"}
+                {hasWon ? "Won" : gameOver ? "Game Over" : "Running"}
               </p>
             </div>
           </div>
@@ -275,6 +284,15 @@ export function SnakeGame({ mode }: SnakeGameProps) {
             ))}
           </div>
         </div>
+
+        {hasWon ? (
+          <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700">
+            <p className="text-lg font-black">
+              {"\u{1F389} You filled the entire map!"}
+            </p>
+            <p className="mt-2 text-sm leading-6">Final score: {score}</p>
+          </div>
+        ) : null}
 
         {gameOver ? (
           <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-rose-700">
