@@ -121,19 +121,29 @@ export function MemoryBoard() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={resetBoard}
-          className="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600"
-        >
-          Restart Game
-        </button>
+        {!hasWon ? (
+          <button
+            type="button"
+            onClick={resetBoard}
+            className="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600"
+          >
+            Restart Game
+          </button>
+        ) : null}
       </div>
 
       <div className="mt-6 min-h-14">
         {hasWon ? (
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-            You matched every card in {turns} moves. Nice work.
+          <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-5 text-center text-emerald-800 shadow-sm">
+            <h2 className="text-2xl font-black tracking-tight">🎉 You Win!</h2>
+            <p className="mt-2 text-base font-medium">Total moves: {turns}</p>
+            <button
+              type="button"
+              onClick={resetBoard}
+              className="mt-4 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+            >
+              Restart Game
+            </button>
           </div>
         ) : (
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
