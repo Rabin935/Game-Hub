@@ -40,6 +40,7 @@ export function MemoryBoard() {
   const [firstChoice, setFirstChoice] = useState<number | null>(null);
   const [secondChoice, setSecondChoice] = useState<number | null>(null);
   const [turns, setTurns] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   const firstCard = cards.find((card) => card.id === firstChoice) ?? null;
   const secondCard = cards.find((card) => card.id === secondChoice) ?? null;
@@ -56,6 +57,7 @@ export function MemoryBoard() {
     setCards(loadCards());
     resetChoices();
     setTurns(0);
+    setElapsedSeconds(0);
   }
 
   function handleSelect(cardId: number) {
@@ -104,10 +106,27 @@ export function MemoryBoard() {
     return () => window.clearTimeout(timeout);
   }, [firstCard, secondCard]);
 
+  useEffect(() => {
+    if (hasWon) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setElapsedSeconds((currentSeconds) => currentSeconds + 1);
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, [hasWon]);
+
   return (
     <section className="w-full max-w-4xl rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.55)] backdrop-blur sm:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-3">
+          <div className="rounded-2xl bg-slate-100 px-4 py-3">
+            <p className="text-lg font-black text-slate-900">
+              Time: {elapsedSeconds} seconds
+            </p>
+          </div>
           <div className="rounded-2xl bg-slate-100 px-4 py-3">
             <p className="text-lg font-black text-slate-900">Moves: {turns}</p>
           </div>
