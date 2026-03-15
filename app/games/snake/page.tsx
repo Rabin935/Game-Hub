@@ -63,7 +63,7 @@ export default function SnakeGamePage() {
           })}
         </section>
 
-        <SnakeGame mode={selectedMode} />
+        <SnakeGame key={selectedMode} mode={selectedMode} />
       </main>
     </div>
   );
