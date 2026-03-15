@@ -1,4 +1,29 @@
+"use client";
+
+import { useState } from "react";
+import { SnakeGame } from "@/components/SnakeGame";
+import type { SnakeGameMode } from "@/types/game";
+
+const gameModes: Array<{
+  mode: SnakeGameMode;
+  title: string;
+  description: string;
+}> = [
+  {
+    mode: "free",
+    title: "Free Mode",
+    description: "Play endlessly and chase your best survival score.",
+  },
+  {
+    mode: "levels",
+    title: "Levels Mode",
+    description: "Progress through structured stages with rising difficulty.",
+  },
+];
+
 export default function SnakeGamePage() {
+  const [selectedMode, setSelectedMode] = useState<SnakeGameMode>("free");
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#dcfce7,_#f8fafc_38%,_#dbeafe_100%)] px-6 py-12">
       <main className="mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-5xl flex-col items-center justify-center gap-8">
@@ -10,20 +35,35 @@ export default function SnakeGamePage() {
             Snake Game
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-            The Snake game route is ready. You can build the playable board
-            here next.
+            Pick a game mode to launch the Snake board.
           </p>
         </div>
 
-        <section className="w-full max-w-2xl rounded-[2rem] border border-white/70 bg-white/85 p-8 text-center shadow-[0_30px_80px_-40px_rgba(15,23,42,0.55)] backdrop-blur">
-          <div className="inline-flex rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-            Coming Soon
-          </div>
-          <p className="mt-4 text-base leading-7 text-slate-600">
-            This page is now live at `/games/snake`, so the homepage card can
-            navigate here without a 404.
-          </p>
+        <section className="grid w-full max-w-3xl gap-4 sm:grid-cols-2">
+          {gameModes.map((gameMode) => {
+            const isActive = selectedMode === gameMode.mode;
+
+            return (
+              <button
+                key={gameMode.mode}
+                type="button"
+                onClick={() => setSelectedMode(gameMode.mode)}
+                className={`rounded-[1.75rem] border p-6 text-left shadow-[0_30px_80px_-40px_rgba(15,23,42,0.4)] transition hover:-translate-y-1 ${
+                  isActive
+                    ? "border-emerald-400 bg-emerald-50 text-slate-900"
+                    : "border-white/70 bg-white/85 text-slate-700"
+                }`}
+              >
+                <p className="text-lg font-black">{gameMode.title}</p>
+                <p className="mt-2 text-sm leading-6 text-inherit/80">
+                  {gameMode.description}
+                </p>
+              </button>
+            );
+          })}
         </section>
+
+        <SnakeGame mode={selectedMode} />
       </main>
     </div>
   );

@@ -6,6 +6,8 @@ export type HubGame = {
   ctaLabel: string;
 };
 
+export type SnakeGameMode = "free" | "levels";
+
 export type MemoryCardData = {
   id: number;
   pairId: number;
