@@ -6,16 +6,18 @@ import { shuffleArray } from "@/lib/shuffle";
 import type { MemoryCardData } from "@/types/game";
 
 const memoryImages = [
-  { pairId: 1, image: "/images/cat.png", label: "Cat card" },
-  { pairId: 2, image: "/images/dog.png", label: "Dog card" },
-  { pairId: 3, image: "/images/lion.png", label: "Lion card" },
-  { pairId: 4, image: "/images/tiger.png", label: "Tiger card" },
-  { pairId: 5, image: "/images/fox.png", label: "Fox card" },
-  { pairId: 6, image: "/images/panda.png", label: "Panda card" },
+  { pairId: 1, image: "/file.svg", label: "File card" },
+  { pairId: 2, image: "/globe.svg", label: "Globe card" },
+  { pairId: 3, image: "/window.svg", label: "Window card" },
+  { pairId: 4, image: "/next.svg", label: "Next.js card" },
+  { pairId: 5, image: "/vercel.svg", label: "Vercel card" },
+  { pairId: 6, image: "/games/memory-flip.svg", label: "Memory card" },
 ];
 
-function loadCards(): MemoryCardData[] {
-  const duplicatedCards = memoryImages.flatMap((card) => [
+const INITIAL_SHUFFLE_SEED = 20260316;
+
+function createDeck(): MemoryCardData[] {
+  return memoryImages.flatMap((card) => [
     {
       id: card.pairId * 2 - 1,
       pairId: card.pairId,
@@ -31,12 +33,25 @@ function loadCards(): MemoryCardData[] {
       matched: false,
     },
   ]);
+}
 
-  return shuffleArray(duplicatedCards);
+function createSeededRandom(seed: number): () => number {
+  let currentSeed = seed;
+
+  return () => {
+    currentSeed = (currentSeed * 1664525 + 1013904223) % 4294967296;
+    return currentSeed / 4294967296;
+  };
+}
+
+function loadCards(random?: () => number): MemoryCardData[] {
+  return shuffleArray(createDeck(), random);
 }
 
 export function MemoryBoard() {
-  const [cards, setCards] = useState<MemoryCardData[]>(() => loadCards());
+  const [cards, setCards] = useState<MemoryCardData[]>(() =>
+    loadCards(createSeededRandom(INITIAL_SHUFFLE_SEED))
+  );
   const [firstChoice, setFirstChoice] = useState<number | null>(null);
   const [secondChoice, setSecondChoice] = useState<number | null>(null);
   const [turns, setTurns] = useState(0);
