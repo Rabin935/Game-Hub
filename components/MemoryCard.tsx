@@ -4,17 +4,24 @@ import type { MemoryCardData } from "@/types/game";
 type MemoryCardProps = {
   card: MemoryCardData;
   flipped: boolean;
+  disabled?: boolean;
   handleClick: () => void;
 };
 
-export function MemoryCard({ card, flipped, handleClick }: MemoryCardProps) {
+export function MemoryCard({
+  card,
+  flipped,
+  disabled = false,
+  handleClick,
+}: MemoryCardProps) {
   return (
     <button
       type="button"
       aria-label={flipped ? card.label : "Reveal card"}
       aria-pressed={flipped}
+      disabled={disabled}
       onClick={handleClick}
-      className="group relative h-28 w-20 cursor-pointer rounded-[1.35rem] transition duration-300 hover:-translate-y-1 hover:scale-[1.02] sm:h-36 sm:w-24 [perspective:1000px]"
+      className="group relative h-28 w-20 rounded-[1.35rem] transition duration-300 hover:-translate-y-1 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-80 sm:h-36 sm:w-24 [perspective:1000px]"
     >
       <span
         className={`relative block h-full w-full rounded-[1.35rem] transition duration-500 [transform-style:preserve-3d] ${

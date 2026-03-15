@@ -47,10 +47,14 @@ export function MemoryBoard() {
   const hasWon = matchedPairs === memoryImages.length;
   const isResolving = secondChoice !== null;
 
-  function resetBoard() {
-    setCards(loadCards());
+  function resetChoices() {
     setFirstChoice(null);
     setSecondChoice(null);
+  }
+
+  function resetBoard() {
+    setCards(loadCards());
+    resetChoices();
     setTurns(0);
   }
 
@@ -80,23 +84,22 @@ export function MemoryBoard() {
       return;
     }
 
-    const isMatch = firstCard.pairId === secondCard.pairId;
+    const isMatch = firstCard.image === secondCard.image;
 
     const timeout = window.setTimeout(() => {
       if (isMatch) {
         setCards((currentCards) =>
           currentCards.map((card) =>
-            card.pairId === firstCard.pairId
+            card.image === firstCard.image
               ? { ...card, matched: true }
               : card
           )
         );
       }
 
-      setFirstChoice(null);
-      setSecondChoice(null);
+      resetChoices();
       setTurns((currentTurns) => currentTurns + 1);
-    }, isMatch ? 300 : 1000);
+    }, isMatch ? 250 : 1000);
 
     return () => window.clearTimeout(timeout);
   }, [firstCard, secondCard]);
@@ -152,6 +155,7 @@ export function MemoryBoard() {
               key={card.id}
               card={card}
               flipped={flipped}
+              disabled={card.matched || isResolving || card.id === firstChoice}
               handleClick={() => handleSelect(card.id)}
             />
           );
