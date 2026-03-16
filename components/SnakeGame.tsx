@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { useEffect, useEffectEvent, useState, type CSSProperties } from "react";
 import type { SnakeGameMode } from "@/types/game";
 
 type SnakeGameProps = {
@@ -77,6 +77,18 @@ function createRandomFruit(occupiedCells: GridPosition[]): GridPosition {
   return nextFruit;
 }
 
+function createBoardItemStyle(
+  position: GridPosition,
+  transitionMs: number
+): CSSProperties {
+  return {
+    width: `${100 / BOARD_SIZE}%`,
+    height: `${100 / BOARD_SIZE}%`,
+    transform: `translate(${position.x * 100}%, ${position.y * 100}%)`,
+    transitionDuration: `${transitionMs}ms`,
+  };
+}
+
 export function SnakeGame({ mode }: SnakeGameProps) {
   const content = modeContent[mode];
   const isLevelsMode = mode === "levels";
@@ -92,12 +104,14 @@ export function SnakeGame({ mode }: SnakeGameProps) {
     LEVEL_CONFIGS[0].fruitsRequired
   );
   const [levelComplete, setLevelComplete] = useState(false);
+  const [boardInstance, setBoardInstance] = useState(0);
 
   const currentLevelConfig =
     LEVEL_CONFIGS[currentLevel - 1] ?? LEVEL_CONFIGS[0];
   const gameSpeed = isLevelsMode
     ? currentLevelConfig.speed
     : DEFAULT_GAME_SPEED;
+  const snakeTransitionMs = Math.max(Math.round(gameSpeed * 0.82), 55);
   const isFinalLevel = currentLevel === LEVEL_CONFIGS.length;
   const statusLabel = hasWon
     ? "Won"
@@ -204,6 +218,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
     setGameOver(false);
     setHasWon(false);
     setLevelComplete(false);
+    setBoardInstance((currentInstance) => currentInstance + 1);
   }
 
   function restartGame() {
@@ -274,23 +289,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
     return () => window.clearInterval(interval);
   }, [gameOver, hasWon, levelComplete, gameSpeed]);
 
-  const snakeHead = snake[0];
-  const gridCells = Array.from({ length: BOARD_SIZE * BOARD_SIZE }, (_, index) => {
-    const x = index % BOARD_SIZE;
-    const y = Math.floor(index / BOARD_SIZE);
-    const isHead = snakeHead ? isSamePosition(snakeHead, { x, y }) : false;
-    const isBody = snake
-      .slice(1)
-      .some((segment) => isSamePosition(segment, { x, y }));
-    const isFruitCell = isSamePosition(fruit, { x, y });
-
-    return {
-      key: `${x}-${y}`,
-      isHead,
-      isBody,
-      isFruitCell,
-    };
-  });
+  const boardCells = Array.from({ length: TOTAL_GRID_CELLS }, (_, index) => index);
 
   return (
     <section className="w-full max-w-3xl rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.55)] backdrop-blur sm:p-8">
@@ -357,26 +356,46 @@ export function SnakeGame({ mode }: SnakeGameProps) {
             </div>
           </div>
 
-          <div
-            className="grid aspect-square w-full overflow-hidden rounded-[1.4rem] border border-white/10 bg-[linear-gradient(180deg,_#111827,_#0f172a)] p-1"
-            style={{
-              gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
-            }}
-          >
-            {gridCells.map((cell) => (
+          <div className="relative aspect-square w-full overflow-hidden rounded-[1.4rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(52,211,153,0.16),transparent_40%),linear-gradient(180deg,_#111827,_#0b1220)] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <div
+              className="absolute inset-1 grid"
+              style={{
+                gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
+              }}
+            >
+              {boardCells.map((cell) => (
+                <div
+                  key={cell}
+                  className="border border-white/[0.06] bg-white/[0.03]"
+                />
+              ))}
+            </div>
+
+            <div key={boardInstance} className="pointer-events-none absolute inset-1">
+              {snake.map((segment, index) => (
+                <div
+                  key={index}
+                  className="absolute left-0 top-0 transition-transform ease-linear"
+                  style={createBoardItemStyle(segment, snakeTransitionMs)}
+                >
+                  <div
+                    className={`absolute inset-[10%] rounded-[0.45rem] ${
+                      index === 0
+                        ? "bg-emerald-700 shadow-[0_10px_24px_-10px_rgba(4,120,87,0.95)]"
+                        : "bg-emerald-300 shadow-[0_10px_20px_-14px_rgba(110,231,183,0.9)]"
+                    }`}
+                  />
+                </div>
+              ))}
+
               <div
-                key={cell.key}
-                className={`rounded-[0.22rem] border border-white/4 ${
-                  cell.isHead
-                    ? "bg-emerald-300"
-                    : cell.isBody
-                      ? "bg-emerald-500"
-                      : cell.isFruitCell
-                        ? "bg-rose-400"
-                        : "bg-white/4"
-                }`}
-              />
-            ))}
+                key={`${fruit.x}-${fruit.y}`}
+                className="absolute left-0 top-0"
+                style={createBoardItemStyle(fruit, 0)}
+              >
+                <div className="absolute inset-[18%] rounded-full bg-rose-500 shadow-[0_0_0_2px_rgba(254,205,211,0.55),0_10px_20px_-12px_rgba(244,63,94,0.95)]" />
+              </div>
+            </div>
           </div>
         </div>
 
