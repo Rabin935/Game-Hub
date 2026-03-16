@@ -99,6 +99,31 @@ export function SnakeGame({ mode }: SnakeGameProps) {
     ? currentLevelConfig.speed
     : DEFAULT_GAME_SPEED;
   const isFinalLevel = currentLevel === LEVEL_CONFIGS.length;
+  const statusLabel = hasWon
+    ? "Won"
+    : levelComplete
+      ? "Level Complete"
+      : gameOver
+        ? "Game Over"
+        : "Running";
+  const stats = [
+    {
+      label: "Score",
+      value: score.toString(),
+    },
+    {
+      label: "Level",
+      value: isLevelsMode ? currentLevel.toString() : "Endless",
+    },
+    {
+      label: "Fruits",
+      value: isLevelsMode ? `${fruitsEaten} / ${fruitsRequired}` : `${score}`,
+    },
+    {
+      label: "Mode",
+      value: isLevelsMode ? "Levels" : "Free",
+    },
+  ];
 
   const handleDirectionChange = useEffectEvent((nextDirection: GridPosition) => {
     setDirection((currentDirection) =>
@@ -285,76 +310,58 @@ export function SnakeGame({ mode }: SnakeGameProps) {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <div className="rounded-2xl bg-slate-100 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Score
-              </p>
-              <p className="mt-1 text-2xl font-black text-slate-900">{score}</p>
-            </div>
-            <div className="rounded-2xl bg-slate-100 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Status
-              </p>
-              <p className="mt-1 text-sm font-bold text-slate-900">
-                {hasWon
-                  ? "Won"
-                  : levelComplete
-                    ? "Level Complete"
-                    : gameOver
-                      ? "Game Over"
-                      : "Running"}
-              </p>
-            </div>
-            {isLevelsMode ? (
-              <>
-                <div className="rounded-2xl bg-slate-100 px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Level
-                  </p>
-                  <p className="mt-1 text-2xl font-black text-slate-900">
-                    {currentLevel}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-slate-100 px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Fruits
-                  </p>
-                  <p className="mt-1 text-2xl font-black text-slate-900">
-                    {fruitsEaten}/{fruitsRequired}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-slate-100 px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Speed
-                  </p>
-                  <p className="mt-1 text-2xl font-black text-slate-900">
-                    {gameSpeed}ms
-                  </p>
-                </div>
-              </>
-            ) : null}
+          <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+            Status: {statusLabel}
           </div>
         </div>
 
         <div className="rounded-[1.75rem] bg-[linear-gradient(145deg,_#0f172a,_#1e293b)] p-5 text-white shadow-inner">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-4 flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">
+                  Snake Board
+                </p>
+                <p className="mt-2 text-sm text-slate-300">
+                  Use the arrow keys or WASD to move. The snake currently
+                  updates every {gameSpeed}ms.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={restartGame}
+                className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
+              >
+                Restart
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-[1.25rem] border border-white/10 bg-white/5 px-4 py-3 shadow-[0_12px_35px_-25px_rgba(15,23,42,0.8)]"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                    {stat.label}
+                  </p>
+                  <p className="mt-2 text-2xl font-black tracking-tight text-white">
+                    {stat.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">
-                Snake Board
+                Current Status
               </p>
               <p className="mt-2 text-sm text-slate-300">
-                Use the arrow keys or WASD to move. The snake updates every
-                200ms.
+                {statusLabel === "Running"
+                  ? "Keep moving and collect the next fruit."
+                  : `Game status: ${statusLabel}.`}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={restartGame}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
-            >
-              Restart
-            </button>
           </div>
 
           <div
