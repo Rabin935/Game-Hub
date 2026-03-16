@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useEffectEvent, useState, type CSSProperties } from "react";
 import type { SnakeGameMode } from "@/types/game";
 
@@ -14,7 +15,7 @@ type GridPosition = {
 
 const BOARD_SIZE = 20;
 const TOTAL_GRID_CELLS = BOARD_SIZE * BOARD_SIZE;
-const DEFAULT_GAME_SPEED = 200;
+const DEFAULT_GAME_SPEED = 100;
 const INITIAL_DIRECTION: GridPosition = { x: 1, y: 0 };
 const LEVEL_CONFIGS = [
   { fruitsRequired: 5, speed: 100 },
@@ -89,6 +90,22 @@ function createBoardItemStyle(
   };
 }
 
+function getDirectionRotation(direction: GridPosition): number {
+  if (direction.x === 1 && direction.y === 0) {
+    return 90;
+  }
+
+  if (direction.x === 0 && direction.y === 1) {
+    return 180;
+  }
+
+  if (direction.x === -1 && direction.y === 0) {
+    return -90;
+  }
+
+  return 0;
+}
+
 export function SnakeGame({ mode }: SnakeGameProps) {
   const content = modeContent[mode];
   const isLevelsMode = mode === "levels";
@@ -112,6 +129,7 @@ export function SnakeGame({ mode }: SnakeGameProps) {
     ? currentLevelConfig.speed
     : DEFAULT_GAME_SPEED;
   const snakeTransitionMs = Math.max(Math.round(gameSpeed * 0.82), 55);
+  const headRotation = getDirectionRotation(direction);
   const isFinalLevel = currentLevel === LEVEL_CONFIGS.length;
   const statusLabel = hasWon
     ? "Won"
@@ -379,12 +397,27 @@ export function SnakeGame({ mode }: SnakeGameProps) {
                   style={createBoardItemStyle(segment, snakeTransitionMs)}
                 >
                   <div
-                    className={`absolute inset-[10%] rounded-[0.45rem] ${
+                    className="relative h-full w-full"
+                    style={
                       index === 0
-                        ? "bg-emerald-700 shadow-[0_10px_24px_-10px_rgba(4,120,87,0.95)]"
-                        : "bg-emerald-300 shadow-[0_10px_20px_-14px_rgba(110,231,183,0.9)]"
-                    }`}
-                  />
+                        ? { transform: `rotate(${headRotation}deg)` }
+                        : undefined
+                    }
+                  >
+                    <Image
+                      src={
+                        index === 0
+                          ? "/games/snake/snake-head.png"
+                          : "/games/snake/snake-body.png"
+                      }
+                      alt=""
+                      fill
+                      unoptimized
+                      sizes="(max-width: 768px) 5vw, 2.5vw"
+                      className="object-contain drop-shadow-[0_8px_10px_rgba(15,23,42,0.35)]"
+                      style={{ imageRendering: "pixelated" }}
+                    />
+                  </div>
                 </div>
               ))}
 
@@ -393,7 +426,17 @@ export function SnakeGame({ mode }: SnakeGameProps) {
                 className="absolute left-0 top-0"
                 style={createBoardItemStyle(fruit, 0)}
               >
-                <div className="absolute inset-[18%] rounded-full bg-rose-500 shadow-[0_0_0_2px_rgba(254,205,211,0.55),0_10px_20px_-12px_rgba(244,63,94,0.95)]" />
+                <div className="relative h-full w-full">
+                  <Image
+                    src="/games/snake/apple.png"
+                    alt=""
+                    fill
+                    unoptimized
+                    sizes="(max-width: 768px) 5vw, 2.5vw"
+                    className="object-contain drop-shadow-[0_8px_10px_rgba(127,29,29,0.35)]"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                </div>
               </div>
             </div>
           </div>
