@@ -17,10 +17,10 @@ const TOTAL_GRID_CELLS = BOARD_SIZE * BOARD_SIZE;
 const DEFAULT_GAME_SPEED = 200;
 const INITIAL_DIRECTION: GridPosition = { x: 1, y: 0 };
 const LEVEL_CONFIGS = [
-  { fruitsRequired: 5, speed: 200 },
-  { fruitsRequired: 10, speed: 170 },
-  { fruitsRequired: 15, speed: 150 },
-  { fruitsRequired: 20, speed: 130 },
+  { fruitsRequired: 5, speed: 100 },
+  { fruitsRequired: 10, speed: 90 },
+  { fruitsRequired: 15, speed: 80 },
+  { fruitsRequired: 20, speed: 70 },
 ];
 
 const modeContent: Record<
@@ -327,13 +327,6 @@ export function SnakeGame({ mode }: SnakeGameProps) {
                   updates every {gameSpeed}ms.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={restartGame}
-                className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
-              >
-                Restart
-              </button>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -406,6 +399,13 @@ export function SnakeGame({ mode }: SnakeGameProps) {
                 {"\u{1F389} You filled the entire map!"}
               </p>
               <p className="mt-2 text-sm leading-6">Final score: {score}</p>
+              <button
+                type="button"
+                onClick={restartGame}
+                className="mt-4 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Restart
+              </button>
             </div>
           )
         ) : null}
@@ -417,13 +417,22 @@ export function SnakeGame({ mode }: SnakeGameProps) {
               You reached the target of {fruitsRequired} fruits for Level{" "}
               {currentLevel}.
             </p>
-            <button
-              type="button"
-              onClick={handleNextLevel}
-              className="mt-4 inline-flex items-center justify-center rounded-full bg-amber-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
-            >
-              Next Level
-            </button>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleNextLevel}
+                className="inline-flex items-center justify-center rounded-full bg-amber-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
+              >
+                Next Level
+              </button>
+              <button
+                type="button"
+                onClick={restartGame}
+                className="inline-flex items-center justify-center rounded-full border border-amber-300 bg-white px-5 py-3 text-sm font-semibold text-amber-800 transition hover:bg-amber-100"
+              >
+                Restart
+              </button>
+            </div>
           </div>
         ) : null}
 
@@ -433,6 +442,13 @@ export function SnakeGame({ mode }: SnakeGameProps) {
             <p className="mt-2 text-sm leading-6">
               Final score: {score}. Hit restart to try again.
             </p>
+            <button
+              type="button"
+              onClick={restartGame}
+              className="mt-4 inline-flex items-center justify-center rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
+            >
+              Restart
+            </button>
           </div>
         ) : null}
       </div>
