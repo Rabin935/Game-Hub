@@ -32,7 +32,7 @@ export default function Home() {
           </h1>
           <p className="mt-4 text-lg leading-8 text-slate-600">
             Jump into quick browser games from one dashboard. Start with the
-            memory challenge below, and grow the collection with routes like
+            memory challenge below and many more, and grow the collection with routes like
             `/games/snake`, `/games/tictactoe`, and `/games/typing`.
           </p>
         </div>
